@@ -53,9 +53,39 @@ resource "aws_iam_role_policy" "terraform_admin_policy" {
         Resource: [
           "*"
         ]
-      }
+      },
+      {
+        Effect: "Allow",
+        Action: [
+          "route53:*",
+        ],
+        Resource: [
+          "*"
+        ] 
+      },
+      {
+        Effect: "Allow",
+        Action: [
+          "acm:*",
+        ],
+        Resource: [
+          "*"
+        ]
+      },
     ]  
   })
 }
 
+resource "aws_iam_user" "sm_ssh_user" {
+  name = "sm-ssh"
+}
 
+resource "aws_iam_user_policy_attachment" "sm_ssh_user_cloudshell_full_access" {
+  user = aws_iam_user.sm_ssh_user.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSCloudShellFullAccess"
+}
+
+resource "aws_iam_user_policy_attachment" "sm_ssh_user_change_password" {
+  user       = aws_iam_user.sm_ssh_user.name
+  policy_arn = "arn:aws:iam::aws:policy/IAMUserChangePassword"
+}
