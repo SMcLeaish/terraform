@@ -25,3 +25,12 @@ resource "aws_route53domains_registered_domain" "seanmcleaish_domain" {
         }
     }
 }
+
+resource "aws_route53_record" "api_record" {
+  zone_id = data.aws_route53_zone.seanmcleaish_zone.zone_id
+  name    = "api.seanmcleaish.com"
+  type    = "A"
+  ttl     = "300"
+  records = ["152.117.99.115"]  
+}
+
