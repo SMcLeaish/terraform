@@ -57,7 +57,7 @@ resource "aws_cloudfront_distribution" "cloudfront_distribution" {
     cloudfront_default_certificate = local.use_default_acm_certificate
   }
 
-  depends_on = [aws_s3_bucket.website_bucket]
+  depends_on = [aws_acm_certificate_validation.mcleaish_cert_validation]
 }
 
 resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {

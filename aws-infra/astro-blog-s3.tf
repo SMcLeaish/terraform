@@ -1,5 +1,4 @@
 locals {
-  app = "${path.module}/../../../dist/packages/static-website" ## path to the static website.
   mime_types = {
     "html"  : "text/html",
     "htm"   : "text/html", # Some older sites might still use .htm
@@ -100,13 +99,10 @@ resource "aws_s3_bucket_website_configuration" "website_configuration" {
   }
 }
 
-resource "aws_s3_object" "website_asset" {
-  for_each = fileset("${local.app}", "**")
+output "website_bucket_name" {
+  value = aws_s3_bucket.website_bucket.bucket
+}
 
-  content_type = lookup(local.mime_types, regex("([^.]+)$", each.value)[0], null)
-
-  bucket = aws_s3_bucket.website_bucket.id
-  etag   = filemd5("${local.app}/${each.value}")
-  key    = each.value
-  source = "${local.app}/${each.value}"
+output "website_endpoint" {
+  value = aws_s3_bucket_website_configuration.website_configuration.website_endpoint
 }
