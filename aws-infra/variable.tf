@@ -12,10 +12,3 @@ variable "bucket_name" {
   description = "Bucket name"
 }
 
-## example terraform.tfvars
-dns = {
-    base_domain_name = "yourdomain_name.com"
-    app_domain_name  = "yourdomain_name.com"
-}
-
-bucket_name = "yourdomain_name.com" 

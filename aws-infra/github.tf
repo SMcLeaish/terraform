@@ -46,8 +46,8 @@ data "aws_iam_policy_document" "github_actions_s3_policy" {
     ]
 
     resources = [
-      "arn:aws:s3:::your-bucket-name",         
-      "arn:aws:s3:::your-bucket-name/*"       
+      "arn:aws:s3:::${var.bucket_name}",         
+      "arn:aws:s3:::${var.bucket_name}/*"       
     ]
   }
 }
