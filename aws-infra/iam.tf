@@ -76,6 +76,7 @@ resource "aws_iam_role_policy" "terraform_admin_policy" {
   })
 }
 
+
 resource "aws_iam_user" "sm_ssh_user" {
   name = "sm-ssh"
 }
