@@ -4,11 +4,42 @@ provider "aws" {
   region = "us-east-1"
 }
 
+
 locals {
   seanmcleaish_bucket = var.aws_s3_page["seanmcleaish.com"].bucket_name
-  seanmcleaish_domain = var.aws_s3_page["seanmcleaish.com"].domain_name
-  seanmcleaish_zone_id = var.aws_s3_page["seanmcleaish.com"].zone_id 
+  seanmcleaish_domain = var.aws_s3_page["seanmcleaish.com"].domain_name 
+  seanmcleaish_zone_id = data.aws_route53_zone.seanmcleaish_zone.zone_id
 }
+
+data "aws_route53_zone" "seanmcleaish_zone" {
+  name         = "seanmcleaish.com."
+  private_zone = false
+}
+
+resource "aws_route53_record" "root_alias" {
+  zone_id = local.seanmcleaish_zone_id
+  name    = local.seanmcleaish_domain   # seanmcleaish.com
+  type    = "A"
+
+  alias {
+    name                   = module.cdn.cloudfront_distribution_domain_name
+    zone_id                = module.cdn.cloudfront_distribution_hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+resource "aws_route53_record" "www_alias" {
+  zone_id = local.seanmcleaish_zone_id
+  name    = "www.${local.seanmcleaish_domain}"   # www.seanmcleaish.com
+  type    = "A"
+
+  alias {
+    name                   = module.cdn.cloudfront_distribution_domain_name
+    zone_id                = module.cdn.cloudfront_distribution_hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
 data "aws_iam_policy_document" "cloudfront" {
   statement {
     sid = "CloudFrontOAItoS3"

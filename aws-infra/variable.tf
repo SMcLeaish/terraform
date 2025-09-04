@@ -2,7 +2,6 @@ variable "aws_s3_page" {
   type = map(object({
     domain_name = string
     bucket_name = string
-    zone_id = string
   }))
 }
 
