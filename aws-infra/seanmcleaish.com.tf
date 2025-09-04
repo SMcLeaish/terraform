@@ -12,13 +12,13 @@ locals {
 }
 
 data "aws_route53_zone" "seanmcleaish_zone" {
-  name         = "seanmcleaish.com."
+  name         = "${local.seanmcleaish_domain}."
   private_zone = false
 }
 
 resource "aws_route53_record" "root_alias" {
   zone_id = local.seanmcleaish_zone_id
-  name    = local.seanmcleaish_domain   # seanmcleaish.com
+  name    = local.seanmcleaish_domain  
   type    = "A"
 
   alias {
@@ -30,7 +30,7 @@ resource "aws_route53_record" "root_alias" {
 
 resource "aws_route53_record" "www_alias" {
   zone_id = local.seanmcleaish_zone_id
-  name    = "www.${local.seanmcleaish_domain}"   # www.seanmcleaish.com
+  name    = "www.${local.seanmcleaish_domain}"  
   type    = "A"
 
   alias {
