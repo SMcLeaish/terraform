@@ -26,11 +26,9 @@ resource "aws_iam_role" "github_actions" {
         },
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
-          StringLike = {
-            "token.actions.githubusercontent.com:sub" = [
-              for repo in var.github_repositories : 
-                "repo:${repo.org}/${repo.repo}:${repo.branch}"
-                ]
+          StringEquals = {
+            "token.actions.githubusercontent.com:sub" = "repo:SMcLeaish/astro-blog:ref:refs/heads/main",
+            "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
           }
         }
       }
@@ -48,8 +46,8 @@ data "aws_iam_policy_document" "github_actions_s3_policy" {
     ]
 
     resources = [
-      "arn:aws:s3:::${var.bucket_name}",         
-      "arn:aws:s3:::${var.bucket_name}/*"       
+      "arn:aws:s3:::${local.seanmcleaish_bucket}",         
+      "arn:aws:s3:::${local.seanmcleaish_bucket}/*"       
     ]
   }
 }

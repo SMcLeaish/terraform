@@ -1,15 +1,9 @@
-variable "dns" {
-  description = "DNS configuration"
-  type = object({
-    base_domain_name = string
-    app_domain_name  = string
-  })
-}
-
-variable "bucket_name" {
-  type        = string
-  default     = ""
-  description = "Bucket name"
+variable "aws_s3_page" {
+  type = map(object({
+    domain_name = string
+    bucket_name = string
+    zone_id = string
+  }))
 }
 
 variable "github_repositories" {
@@ -21,7 +15,7 @@ variable "github_repositories" {
   }))
   default = [
     {
-      org    = "smcleaish"
+      org    = "SMcLeaish"
       repo   = "astro-blog"
       branch = "main"
     }
