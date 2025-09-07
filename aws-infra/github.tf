@@ -36,7 +36,7 @@ resource "aws_iam_role" "github_actions" {
   })
 }
 
-data "aws_iam_policy_document" "github_actions_s3_policy" {
+data "aws_iam_policy_document" "github_actions_policy" {
   statement {
     actions = [
       "s3:PutObject",
@@ -50,16 +50,27 @@ data "aws_iam_policy_document" "github_actions_s3_policy" {
       "arn:aws:s3:::${local.seanmcleaish_bucket}/*"       
     ]
   }
+  statement {
+    sid = "CloudFrontInvalidationAccess"
+    actions = [
+      "cloudfront:CreateInvalidation",
+      "cloudfront:GetInvalidation"
+    ]
+
+    resources = [
+      module.cdn.cloudfront_distribution_arn
+    ]
+  }
 }
 
-resource "aws_iam_policy" "github_actions_s3_policy" {
-  name   = "github-actions-s3-policy"
-  policy = data.aws_iam_policy_document.github_actions_s3_policy.json
+resource "aws_iam_policy" "github_actions_policy" {
+  name   = "github-actions-policy"
+  policy = data.aws_iam_policy_document.github_actions_policy.json
 }
 
-resource "aws_iam_role_policy_attachment" "attach_s3_policy" {
+resource "aws_iam_role_policy_attachment" "attach_github_actions_policy" {
   role       = aws_iam_role.github_actions.name
-  policy_arn = aws_iam_policy.github_actions_s3_policy.arn
+  policy_arn = aws_iam_policy.github_actions_policy.arn
 }
 
 output "github_actions_role_arn" {
