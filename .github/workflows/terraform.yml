@@ -4,10 +4,10 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: {} # allow manual runs
+  workflow_dispatch:
 
 jobs:
-  plan:
+  terraform:
     runs-on: ubuntu-latest
 
     permissions:
@@ -21,7 +21,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.13.1
+          terraform_version: 1.9.5
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -29,20 +29,24 @@ jobs:
           role-to-assume: arn:aws:iam::290726015909:role/github-actions-terraform
           aws-region: us-east-1
 
+      - name: Cache .terraform directory
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.terraform.d/plugin-cache
+            ./aws-infra/.terraform
+          key: ${{ runner.os }}-terraform-${{ hashFiles('aws-infra/.terraform.lock.hcl') }}
+          restore-keys: ${{ runner.os }}-terraform-
+
       - name: Terraform Init
         working-directory: ./aws-infra
-        run: terraform init
+        run: terraform init -input=false
 
       - name: Terraform Validate
         working-directory: ./aws-infra
-        run: terraform validate
+        run: terraform validate -no-color
 
       - name: Terraform Plan
         working-directory: ./aws-infra
-        run: terraform plan -no-color -out=tfplan
+        run: terraform plan -no-color 
 
-      - name: Upload plan file
-        uses: actions/upload-artifact@v4
-        with:
-          name: tfplan
-          path: aws-infra/tfplan
