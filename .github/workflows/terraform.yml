@@ -1,4 +1,4 @@
-name: Terraform Plan
+name: Terraform Plan (Debug)
 
 on:
   push:
@@ -46,7 +46,21 @@ jobs:
         working-directory: ./aws-infra
         run: terraform validate -no-color
 
-      - name: Terraform Plan
+      - name: Terraform Plan (with debug logs)
         working-directory: ./aws-infra
-        run: terraform plan -no-color 
+        env:
+          TF_LOG: DEBUG
+          TF_LOG_PATH: tf-debug.log
+        run: |
+          terraform plan -input=false -lock-timeout=5m -no-color -out=tfplan
+          terraform show -no-color tfplan > plan.txt
+          cat plan.txt
 
+      - name: Upload Debug Logs and Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-debug
+          path: |
+            aws-infra/tfplan
+            aws-infra/plan.txt
+            aws-infra/tf-debug.log
