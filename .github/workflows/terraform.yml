@@ -1,4 +1,4 @@
-name: Terraform Plan (Debug)
+name: Terraform
 
 on:
   push:
@@ -7,9 +7,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  terraform:
+  plan:
     runs-on: ubuntu-latest
-
     permissions:
       id-token: write
       contents: read
@@ -46,37 +45,47 @@ jobs:
         working-directory: ./aws-infra
         run: terraform validate -no-color
 
-      - name: Terraform Plan (with debug logs)
+      - name: Terraform Plan
         working-directory: ./aws-infra
-        env:
-          TF_LOG: DEBUG
-          TF_LOG_PATH: tf-debug.log
-          TF_VAR_aws_s3_page: |
-            {
-              "seanmcleaish.com" = {
-                domain_name = "seanmcleaish.com"
-                bucket_name = "seanmcleaish.com"
-                zone_id = "/hostedzone/Z0755724XECV9BCZAXUV"
-              }
-            }
-          TF_VAR_github_repositories: |
-            [
-              {
-                org    = "SMcLeaish"
-                repo   = "astro-blog"
-                branch = "main"
-              }
-            ]
         run: |
           terraform plan -input=false -lock-timeout=5m -no-color -out=tfplan
           terraform show -no-color tfplan > plan.txt
           cat plan.txt
 
-      - name: Upload Debug Logs and Plan
+      - name: Upload Plan Output
         uses: actions/upload-artifact@v4
         with:
-          name: terraform-debug
-          path: |
-            aws-infra/tfplan
-            aws-infra/plan.txt
-            aws-infra/tf-debug.log
+          name: terraform-plan
+          path: aws-infra/plan.txt
+
+  apply:
+    runs-on: ubuntu-latest
+    needs: plan
+    if: github.event_name == 'workflow_dispatch' # only allow manual apply
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.13.1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{secrets.AWS_ROLE_ID}}:role/github-actions-terraform
+          aws-region: us-east-1
+
+      - name: Terraform Init
+        working-directory: ./aws-infra
+        run: terraform init -input=false
+
+      - name: Terraform Apply
+        working-directory: ./aws-infra
+        run: terraform apply -input=false -lock-timeout=5m -auto-approve tfplan
+
