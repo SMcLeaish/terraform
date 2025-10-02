@@ -26,7 +26,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::290726015909:role/github-actions-terraform
+          role-to-assume: arn:aws:iam::${{secrets.AWS_ROLE_ID}}:role/github-actions-terraform
           aws-region: us-east-1
 
       - name: Cache .terraform directory
@@ -51,6 +51,22 @@ jobs:
         env:
           TF_LOG: DEBUG
           TF_LOG_PATH: tf-debug.log
+          TF_VAR_aws_s3_page: |
+            {
+              "seanmcleaish.com" = {
+                domain_name = "seanmcleaish.com"
+                bucket_name = "seanmcleaish.com"
+                zone_id = "/hostedzone/Z0755724XECV9BCZAXUV"
+              }
+            }
+          TF_VAR_github_repositories: |
+            [
+              {
+                org    = "SMcLeaish"
+                repo   = "astro-blog"
+                branch = "main"
+              }
+            ]
         run: |
           terraform plan -input=false -lock-timeout=5m -no-color -out=tfplan
           terraform show -no-color tfplan > plan.txt
