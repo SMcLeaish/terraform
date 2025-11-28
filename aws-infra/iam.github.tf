@@ -28,7 +28,7 @@ resource "aws_iam_role" "github_actions" {
         Condition = {
           StringEquals = {
             "token.actions.githubusercontent.com:sub" = "repo:SMcLeaish/astro-blog:ref:refs/heads/main",
-            "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+            "token.actions.githubusercontent.com:aud" : "sts.amazonaws.com"
           }
         }
       }
@@ -73,8 +73,8 @@ data "aws_iam_policy_document" "github_actions_policy" {
     ]
 
     resources = [
-      "arn:aws:s3:::${local.seanmcleaish_bucket}",         
-      "arn:aws:s3:::${local.seanmcleaish_bucket}/*"       
+      "arn:aws:s3:::${local.seanmcleaish_bucket}",
+      "arn:aws:s3:::${local.seanmcleaish_bucket}/*"
     ]
   }
   statement {
@@ -99,13 +99,3 @@ resource "aws_iam_role_policy_attachment" "attach_github_actions_policy" {
   role       = aws_iam_role.github_actions.name
   policy_arn = aws_iam_policy.github_actions_policy.arn
 }
-
-output "github_actions_role_arn" {
-  value = aws_iam_role.github_actions.arn
-}
-
-output "github_actions_terraform_role_arn"{
-  value = aws_iam_role.github_actions_terraform.arn
-}
-
-

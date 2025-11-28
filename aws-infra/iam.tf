@@ -12,7 +12,7 @@ resource "aws_iam_role" "tf_admin" {
         },
         Condition = {
           StringEquals = {
-            "sts:ExternalId": "tf-admin"
+            "sts:ExternalId" : "tf-admin"
           }
         }
       },
@@ -28,51 +28,51 @@ resource "aws_iam_role_policy" "terraform_admin_policy" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect: "Allow",
-        Action: [
+        Effect : "Allow",
+        Action : [
           "s3:*",
         ],
-        Resource: [
+        Resource : [
           "arn:aws:s3:::*"
         ]
       },
       {
-        Effect: "Allow",
-        Action: [
+        Effect : "Allow",
+        Action : [
           "dynamodb:*",
         ],
-        Resource: [
+        Resource : [
           "arn:aws:dynamodb:*:*:table/*"
         ]
       },
       {
-        Effect: "Allow",
-        Action: [
+        Effect : "Allow",
+        Action : [
           "iam:*",
         ],
-        Resource: [
+        Resource : [
           "*"
         ]
       },
       {
-        Effect: "Allow",
-        Action: [
+        Effect : "Allow",
+        Action : [
           "route53:*",
         ],
-        Resource: [
-          "*"
-        ] 
-      },
-      {
-        Effect: "Allow",
-        Action: [
-          "acm:*",
-        ],
-        Resource: [
+        Resource : [
           "*"
         ]
       },
-    ]  
+      {
+        Effect : "Allow",
+        Action : [
+          "acm:*",
+        ],
+        Resource : [
+          "*"
+        ]
+      },
+    ]
   })
 }
 
@@ -82,7 +82,7 @@ resource "aws_iam_user" "sm_ssh_user" {
 }
 
 resource "aws_iam_user_policy_attachment" "sm_ssh_user_cloudshell_full_access" {
-  user = aws_iam_user.sm_ssh_user.name
+  user       = aws_iam_user.sm_ssh_user.name
   policy_arn = "arn:aws:iam::aws:policy/AWSCloudShellFullAccess"
 }
 
